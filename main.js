@@ -26,6 +26,7 @@ urls.forEach((link) => {
 
   protocol.get(link, (res) => {
     res.pipe(file);
+
     file.on('finish', () => {
       file.close();
       console.log(`Downloaded: ${hostname}`);
