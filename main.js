@@ -12,30 +12,19 @@ if (urls.length === 0) {
 
 urls.forEach((link) => {
   let hostname;
+
   try {
     const parsed = new URL(link);
     hostname = parsed.hostname;
   } catch {
-    console.log(`Invalid URL: ${link}`);
-    return;
+    return; 
   }
 
   const protocol = link.startsWith('https') ? https : http;
-
   const file = fs.createWriteStream(hostname);
 
   protocol.get(link, (res) => {
     res.pipe(file);
-
-    file.on('finish', () => {
-      file.close();
-      console.log(`Downloaded: ${hostname}`);
-    });
   }).on('error', () => {
-    console.log(`Error downloading ${link}`);
-  });
-
-  file.on('error', () => {
-    console.log(`Error writing file for ${hostname}`);
   });
 });
