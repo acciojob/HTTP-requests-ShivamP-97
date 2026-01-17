@@ -21,23 +21,20 @@ urls.forEach((link) => {
   }
 
   const protocol = link.startsWith('https') ? https : http;
-  const options = { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' } };
 
-  protocol.get(link, options, (res) => {
-    let data = '';
-    res.on('data', (chunk) => {
-      data += chunk;
-    });
-    res.on('end', () => {
-      fs.writeFile(hostname, data, (err) => {
-        if (err) {
-          console.log(`Error writing file for ${hostname}`);
-        } else {
-          console.log(`Downloaded: ${hostname}`);
-        }
-      });
+  const file = fs.createWriteStream(hostname);
+
+  protocol.get(link, (res) => {
+    res.pipe(file);
+    file.on('finish', () => {
+      file.close();
+      console.log(`Downloaded: ${hostname}`);
     });
   }).on('error', () => {
     console.log(`Error downloading ${link}`);
+  });
+
+  file.on('error', () => {
+    console.log(`Error writing file for ${hostname}`);
   });
 });
